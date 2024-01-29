@@ -1,0 +1,35 @@
+services:
+  pgdatabase:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=ny_taxi
+    volumes:
+      - "./ny_taxi_postgres_data:/var/lib/postgresql/data:rw"
+    ports:
+      - "5433:5432"
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+    ports:
+      - "8080:80"
+    depends_on:
+      - pgdatabase
+  pipeline:
+    image: taxi_ingest:v001
+    environment:
+      - URL=https://github.com/DataTalksClub/nyc-tlc-data/releases/download/green/green_tripdata_2019-09.csv.gz
+      - USER=root
+      - PASSWORD=root
+      - HOST=pgdatabase
+      - PORT=5432
+      - DB=ny_taxi
+      - TABLE_NAME=green_taxi_trips
+    build:
+      dockerfile: ./Dockerfile
+    depends_on:
+      - pgadmin
+  
