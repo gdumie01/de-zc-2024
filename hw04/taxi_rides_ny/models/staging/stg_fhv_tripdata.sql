@@ -15,6 +15,7 @@ select
     cast(dropOff_datetime as timestamp) as dropoff_datetime,
 
 from {{ source('staging','fhv_tripdata') }}
+where EXTRACT(YEAR from pickup_datetime) = 2019
 
 -- dbt build --select <model_name> --vars '{'is_test_run': 'false'}'
 {% if var('is_test_run', default=true) %}
